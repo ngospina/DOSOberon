@@ -1,8 +1,8 @@
 ; ******************************************************************************
-; Extender.asm ARD 19.08.93
+; Extender.asm ARD 17.05.94
 ;
-; This module defines all the descriptortables, interrupttables, switches then to protected mode
-; and installs the loader.
+; This module defines all the descriptortables, interrupttables, switches then
+; to protected mode and installs the loader.
 ; A flat 32-bit-memory model is assumed.
 ; No Paging
 ; ******************************************************************************
@@ -59,7 +59,7 @@
 ;		MOV EAX, CR3
 ;		MOV CR3, EAX
 		MOV EAX, CR0
-		OR EAX, 80000001H
+		OR EAX, 00000001H
 		MOV CR0, EAX
 		db 0EBH	; Flush prefetchqueue
 		db 0
@@ -99,7 +99,7 @@
 	IntOff	EQU	20
 	RegOff	EQU	24
 	
-;	EnableProt	EQU	80000001H	; For entering Protected mode & paging
+;	EnableProt	EQU	00000001H	; For entering Protected mode & no paging
 ;	EnableReal	EQU	7FFFFFFEH	; For entering Real mode & no paging
  
 ; GDT-SELECTORS
@@ -326,53 +326,53 @@ pathread:
 		;*****************************************************************
 		; Get paging memory and prepare pages
 		;*****************************************************************
-		MOV AH, 48H	; Get memory for pages
-		MOV BX, 400H	; 16 kb
-		INT 21H
-		JC Error
-		MOVZX EAX, AX
-		SHL EAX, 4
-		MOV dword ptr Pagebase, EAX
-pg2:	MOV EBX, EAX
-		AND EBX, 0FFFH
-		JZ pg1
-		ADD EAX, 16
-		JMP pg2
-pg1: MOV CR3, EAX	; page address MOD 4096 = 0
-		SHR EAX, 4
-		MOV FS, AX
-		SHL EAX, 4
-		MOV EBX, 0
-		ADD EAX, 1007H	; page dir
-		MOV FS:[EBX], EAX
-		ADD EAX, 1000H
-		MOV FS:[EBX+4], EAX
+;		MOV AH, 48H	; Get memory for pages
+;		MOV BX, 400H	; 16 kb
+;		INT 21H
+;		JC Error
+;		MOVZX EAX, AX
+;		SHL EAX, 4
+;		MOV dword ptr Pagebase, EAX
+;pg2:	MOV EBX, EAX
+;		AND EBX, 0FFFH
+;		JZ pg1
+;		ADD EAX, 16
+;		JMP pg2
+;pg1: MOV CR3, EAX	; page address MOD 4096 = 0
+;		SHR EAX, 4
+;		MOV FS, AX
+;		SHL EAX, 4
+;		MOV EBX, 0
+;		ADD EAX, 1007H	; page dir
+;		MOV FS:[EBX], EAX
+;		ADD EAX, 1000H
+;		MOV FS:[EBX+4], EAX
 		
-		MOV ECX, 2	; page dir
-		MOV EBX, 8H
-		MOV EAX, 0H
-pg6:	CMP ECX, 400H
-		JGE pg5
-		MOV FS:[EBX], EAX
-		ADD EBX, 4
-		INC ECX
-		JMP pg6
+;		MOV ECX, 2	; page dir
+;		MOV EBX, 8H
+;		MOV EAX, 0H
+;pg6:	CMP ECX, 400H
+;		JGE pg5
+;		MOV FS:[EBX], EAX
+;		ADD EBX, 4
+;		INC ECX
+;		JMP pg6
 		
-pg5:		MOV ECX, 0	; page table
-		MOV EBX, 1000H
-		MOV EAX, 7
-pg4:	CMP ECX, 800H
-		JGE pg3
-		MOV FS:[EBX], EAX
-		ADD EAX, 1000H
-		ADD EBX, 4
-		INC ECX
-		JMP pg4
+;pg5:		MOV ECX, 0	; page table
+;		MOV EBX, 1000H
+;		MOV EAX, 7
+;pg4:	CMP ECX, 800H
+;		JGE pg3
+;		MOV FS:[EBX], EAX
+;		ADD EAX, 1000H
+;		ADD EBX, 4
+;		INC ECX
+;		JMP pg4
 		
-pg3: MOV EAX, 0FFFFFFFFH	; reset CR2
-		MOV CR2, EAX	
-		MOV EAX, 1000H
-		MOV dword ptr FS:[EAX], 6	; first page not available, NIL-Check
+;pg3: MOV EAX, 0FFFFFFFFH	; reset CR2
+;		MOV CR2, EAX	
+;		MOV EAX, 1000H
+;		MOV dword ptr FS:[EAX], 6	; first page not available, NIL-Check
 		
 		;*****************************************************************
 		; Patch jumps
@@ -1369,7 +1369,7 @@ L7: MOV ESI, EDX
 ;		MOV EAX, CR3
 ;		MOV CR3, EAX
 		MOV EAX, CR0
-		OR EAX, 80000001H
+		OR EAX, 00000001H
 		MOV CR0, EAX
 		JMP Flush1
 	Flush1:
@@ -1605,11 +1605,11 @@ Patch1:	INT 21h	; Call interrupt
 		SHR EBX, 4
 		MOV ES, BX
 		INT 21H
-		MOV AH, 49H														; Free Pagebase
-		MOV EBX, dword ptr FS:Pagebase
-		SHR EBX, 4
-		MOV ES, BX
-		INT 21H
+;		MOV AH, 49H														; Free Pagebase
+;		MOV EBX, dword ptr FS:Pagebase
+;		SHR EBX, 4
+;		MOV ES, BX
+;		INT 21H
 	Free:
 		SUB dword ptr FS:count, 4
 		MOV EBX, dword ptr FS:count
@@ -1682,7 +1682,7 @@ Patch1:	INT 21h	; Call interrupt
 ;		MOV EAX, CR3
 ;		MOV CR3, EAX
 		MOV EAX, CR0
-		OR EAX, 80000001H
+		OR EAX, 00000001H
 		MOV CR0, EAX
 		db 0EBH
 		db 0
@@ -1715,7 +1715,7 @@ Patch1:	INT 21h	; Call interrupt
 		ProtIDT	db 8 DUP (?)
 		RealIDT	db 8 DUP (?)
 		Code32	dd 1 DUP (?)
-		Pagebase	dd 1 DUP (?)
+;		Pagebase	dd 1 DUP (?)
 		Start		dd 1 DUP (?) ; Start of loadercode
 		help		dd 1 DUP (?)
 		oldEBP	dd 1 DUP (?)

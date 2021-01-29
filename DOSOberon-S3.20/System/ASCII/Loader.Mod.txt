@@ -108,7 +108,7 @@ VAR First: LONGINT;
 		P: RegPtr;
 		Routine: ARRAY 2 OF LONGINT;
 		KernelLoaded, SystemLoaded, FilesLoaded, LoadHigh: BOOLEAN;
-		PageDir: LONGINT;
+    (* PageDir: LONGINT; *)
 		OldSegment: LONGINT;
 		DS, ES: INTEGER;
 		main: ARRAY 64 OF CHAR;
@@ -718,7 +718,7 @@ BEGIN
 	DEC(data, 22);  SYSTEM.PUT (data, DS);
 	DEC(data, 2);  SYSTEM.PUT (data, ES);
 	DEC(data, 4);  SYSTEM.PUT (data, OldSegment);
-	DEC(data, 12);  SYSTEM.PUT (data, PageDir);
+(* DEC(data, 12);  SYSTEM.PUT (data, PageDir); *)
 	KernelLoaded := TRUE;
 END InitKernel;
 
@@ -745,6 +745,7 @@ END InitModules;
 
 BEGIN 
 	InitModules;
-	WriteString("Loading Oberon System 3  V1.5"); WriteLn; 
+	WriteString("Loading Oberon System 3  V2.0"); WriteLn; 
 	Execute("Modules.Obj", "Dummy", res);
 END Loader.
+
