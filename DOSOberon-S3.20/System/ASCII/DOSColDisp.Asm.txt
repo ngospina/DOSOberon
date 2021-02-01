@@ -6,9 +6,8 @@ MODULE ColorDisplay
 * Author Ott Hans-Werner
 * Changes 20.3.92	Scroll up,down implemented	HWO
 *	24.3.92	Get / SetColor implemented	HWO	(not tested)
-*	24.3.92	Faster CopyBlock implemented HWO
-*	30.3.92	Error in CopyPat Replacemode
-*	eliminated	HWO 
+*	24.3.92	Faster CopyBlock implemented	HWO
+*	30.3.92	Error in CopyPat Replacemode eliminated	HWO 
 *	31.3.92	Clipping on all Procedures	HWO 
 	
 ReplaceMode	EQU	$0
@@ -168,6 +167,36 @@ Init	ENTER 0, 0
 	LEAVE
 	RET	12
 
+*PROCEDURE GetChar*(f: Font; ch:CHAR; VAR dx, x, y, w, h: INTEGER; VAR p: LONGINT);
+* always call over ColDisplay !
+GetChar	POP     EAX
+	MOV     EAX,36[EBP]
+	MOV     ECX,32[EBP]
+    MOVSX   EAX,[EAX + ECX * 2]:byte
+	ADD     EAX,36[EBP]
+	SUB     EAX,3
+	MOVSX   ECX,[EAX]:byte
+	MOV     EBX,28[EBP]
+	MOV     [EBX],CX
+	MOVSX   ECX,1[EAX]:byte
+	MOV     EBX,24[EBP]
+	MOV     [EBX],CX
+	MOVSX   ECX,2[EAX]:byte
+	MOV     EBX,20[EBP]
+	MOV     [EBX],CX
+	MOVSX   ECX,[EAX]:byte
+	MOVSX   ECX,[EAX]:byte
+	MOVSX   ECX,3[EAX]:byte
+	MOV     EBX,16[EBP]
+	MOV     [EBX],CX
+	MOVSX  ECX,4[EAX]:byte
+	MOV     EBX,12[EBP]
+	MOV     [EBX],CX
+	ADD     EAX,3
+	MOV     EDX,8[EBP]
+	MOV     [EDX],EAX
+	LEAVE   
+	RET     32
 
 *PROCEDURE Dot*(col, x, y, mode: INTEGER);
 * always call over ColDisplay !
@@ -239,18 +268,12 @@ getxy	MOV	EAX,height
 	OUT	DX,AX
 	MOV	AX,$0003	; default function
 	OUT	DX,AX
-endDot	PUSH DS
-	POP GS
-	LEAVE
+endDot	LEAVE
 	RET 16
 	
 *PROCEDURE CopyPattern*(col: INTEGER; pat: Display.Pattern; X, Y, mode: INTEGER);
 *always call over ColDisplay 
 CopyPattern	POP	EAX
-; Set GS register
-	MOV	AX, $1C
-	MOV	GS, AX
-
 ; Clipping
 	MOVSX	EAX,16[EBP]:word	; x
 	MOVSX	EBX,12[EBP]:word	; y
@@ -1498,18 +1521,12 @@ resetgrafCP	MOV	DX,SQ
 	OUT	DX,AX
 	MOV	AX,$0003	; default function
 	OUT	DX,AX
-endCP	PUSH DS
-	POP GS
-	LEAVE
+endCP	LEAVE
 	RET 20
 	
 *PROCEDURE ReplConst*(col, X, Y, W, H, mode: INTEGER);
 * always call over ColDisplay 
 ReplConst	POP	EAX
-; Set GS register
-	MOV	AX, $1C
-	MOV	GS, AX
-
 ; Clipping
 	MOVSX	EAX,24[EBP]:word
 	MOVSX	EBX,20[EBP]:word
@@ -1651,18 +1668,12 @@ resetgrafRC	MOV	DX,GC
 	MOV	DX,SQ	; default map mask
 	MOV	AX,$0F02
 	OUT	DX,AX
-endRC	PUSH DS
-	POP GS
-	LEAVE
+endRC	LEAVE
 	RET 24
 
 *PROCEDURE CopyBlock*(SX, SY, W, H, DX, DY, mode: INTEGER);
 *always call over ColDisplay 
 CopyBlock	POP	EAX
-; Set GS register
-	MOV	AX, $1C
-	MOV	GS, AX
-
 ; Clipping
 	MOV	EAX,16[EBP]	; dx
 	MOV	EBX,12[EBP]	; dy
@@ -2420,9 +2431,7 @@ resetgrafCB	MOV	DX,GC
 	MOV	DX,SQ
 	MOV	AX,$0F02	; default map mask
 	OUT	DX,AX
-endCB	PUSH DS
-	POP GS
-	LEAVE
+endCB	LEAVE
 	RET	28
 	
 * PROCEDURE ReplPattern*(col: INTEGER; pat: Pattern; X0, Y0, X, Y, W, H, mode: INTEGER);
@@ -3322,8 +3331,6 @@ resetgrafRP	MOV	DX,GC
 	MOV	DX,SQ
 	MOV	AX,$0F02	; default map mask
 	OUT	DX,AX
-endRP	PUSH DS
-	POP GS
-	LEAVE
+endRP	LEAVE
 	RET	36
 
